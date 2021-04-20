@@ -1,39 +1,37 @@
-public class main {
-    public static void main(String[] args) {
-        Foo myFoo = new Foo();
+import java.util.concurrent.*;
 
-        Thread thread1 = new Thread(new Runnable() {
+public class main {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+        Foo myFoo = new Foo();
+        ExecutorService executorService = Executors.newCachedThreadPool();
+
+
+        Runnable first = new Runnable() {
             @Override
             public void run() {
                 myFoo.first();
             }
-        });
-        Thread thread2 = new Thread(new Runnable() {
+        };
+        Runnable second = new Runnable() {
             @Override
             public void run() {
-                try {
-                    thread1.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 myFoo.second();
             }
-        });
-        Thread thread3 = new Thread(new Runnable() {
+        };
+        Runnable third = new Runnable() {
             @Override
             public void run() {
-                try {
-                    thread1.join();
-                    thread2.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 myFoo.third();
             }
-        });
+        };
+        executorService.execute(second);
+        executorService.execute(first);
+        executorService.execute(third);
+        executorService.execute(first);
+        executorService.execute(third);
+        executorService.execute(second);
 
-        thread3.start();
-        thread2.start();
-        thread1.start();
+        executorService.shutdown();
+
     }
 }
